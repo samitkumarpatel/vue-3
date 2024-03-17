@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vue3</title>
+    <style>
+      body {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 20px;
+        width: 70%;
+        text-align: center;
+      }
+      
+      input[type='text'] {
+        height: 40px;
+      }
+
+      input[type='datetime-local'],
+      input[type='time'] {
+        width: 150px;
+        height: 43px;
+      }
+
+      input {
+        margin-left: 5px;
+      }
+
+      input#todo__edit {
+        border: none;
+        border-bottom: 1px solid gray;
+      }
+      
+      button {
+        margin-left: 5px;
+      }
+      
+      button[type='submit'] {
+        height: 45px;
+      }
+      
+    </style>
+</head>
+<body> 
+    <div id="app">
+      <form @submit.prevent="event => addTodo(event)">
+        <input id="todo__text" type="text" placeholder="Add Todo's" v-model="newTodo.text"/>
+        <input type="datetime-local" v-model="newTodo.dateTime"/>
+        <button type="submit" :disabled="!newTodo.text" id="todo__submit">Add </button>
+      </form>
+      <hr/>
+      <p id="todo__all" v-if="messages.length > 0" v-for="message in messages">
+        <span>{{message.id}}.</span>
+        <input v-if="message.isEditable" id="todo__edit" type="text" v-model="message.text" />
+        <span v-else>{{ message.text }} {{ message.dateTime }}</span>
+        
+        <button @click="toggleEdit(message)">{{ message.isEditable ? 'Save' : 'Edit'}}</button>
+        <button @click="deleteTodo(message.id)">Delete</button>
+      </p>
+      <p v-else>No Todo's found, Please add!</p>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref } = Vue
+      
+        createApp({
+
+          setup() {
+            const messages = ref([])
+            const newTodo = ref({})
+
+            const addTodo = () => {
+              messages.value.push({
+                id: messages.value.length + 1,
+                text: newTodo.value.text,
+                dateTime: newTodo.value.dateTime,
+                isEditable: false
+              })
+              newTodo.value = {}
+            }
+
+            const updateTodo = (id) => {
+              console.log(id)
+            }
+
+            const toggleEdit = (message) => {
+              console.log(message)
+              message.isEditable = !message.isEditable
+            }
+
+            const deleteTodo = (id) => {
+              const index = messages.value.findIndex(message => message.id === id);
+              if (index !== -1) {
+                messages.value.splice(index, 1);
+              }
+            }
+            
+            return {
+              messages, newTodo,
+              addTodo, toggleEdit, updateTodo, deleteTodo
+            }
+          }
+        }).mount('#app')
+      </script>
+</body>
+</html>
