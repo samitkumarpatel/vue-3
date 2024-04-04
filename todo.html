@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+    <style>
+        body {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 30px;
+            width: 70%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.1em;
+        }
+
+        input[type='text'], input[type='datetime-local'], button[type='submit'], button[type='reset'] {
+            height: 40px;
+            margin-right: 5px;
+        }
+        li {
+            list-style: circle;
+            margin-top: 10px;
+        }
+        a {
+            font-size: small;
+            margin-right: 10px;
+            border: 1px solid gray;
+            padding: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="app">
+        <h3>{{ title }}</h3>
+
+        <form @submit.prevent="e => addTodo(e)">
+            <input type="text" placeholder="Add Todo's" v-model="todo.text">
+            <input type="datetime-local" v-model="todo.dateTime">
+            <button type="submit" :disabled="!todo.text">Add</button>
+            <button type="reset">Reset</button>
+        </form>
+        <hr/>
+
+        <p v-if="todos.length === 0">no data found!</p>
+
+        <div v-else>
+            <a href="#" @click="changeView">{{ defaultView ? 'Date View' : 'Default View'}}</a>
+            <h3>All Todos!</h3>
+            <section v-if="defaultView">
+                <ul>
+                    <li v-for="todo in todos">
+                        <span>{{ todo.text }}</span>
+                        <span style="color: blue; margin-left: 10px;">{{ todo.dateTime }}</span>
+                    </li>
+                </ul>
+            </section>
+            <section v-else>
+                <div v-for="date in Object.keys(todosByDate)">
+                    <p style="text-decoration: underline;">{{ date ? date : 'UNKNOWN' }}</p>
+                    <ul>
+                        <li v-for="todo in todosByDate[date]">
+                            <span>{{ todo.text }}</span>
+                            <span style="color: blue; margin-left: 10px;">{{ todo.dateTime }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, watch, computed } = Vue
+      
+        createApp({
+          setup() {
+            const title = ref('Todo!')
+            const todo = ref({
+              text: '',
+              dateTime: ''
+            })
+            const todos = ref([])
+            const todosByDate = ref({})
+            const defaultView = ref(true)
+
+            const changeView = () => {
+              defaultView.value = !defaultView.value
+            }
+
+            const addTodo = (e) => {
+              e.preventDefault()
+
+              todos.value.push({ ...todo.value })
+              todo.value.text = ''
+              todo.value.dateTime = ''
+              
+              todosByDate.value = Object.groupBy(todos.value, (todo) => todo.dateTime.split('T')[0])
+            }
+
+            return {
+              title, todo, todos, todosByDate, defaultView, addTodo, changeView
+            }
+          }
+        }).mount('#app')
+      </script>
+</body>
+</html>
