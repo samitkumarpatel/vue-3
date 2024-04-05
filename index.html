@@ -9,16 +9,21 @@
         margin-left: auto;
         margin-right: auto;
         margin-top: 20px;
-        width: 70%;
-        text-align: center;
+        width: 30%;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+      }
+
+      form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       
       input[type='text'] {
         height: 40px;
       }
 
-      input[type='datetime-local'],
-      input[type='time'] {
+      input[type='datetime-local'], input[type='date'], input[type='time'] {
         width: 150px;
         height: 43px;
       }
@@ -39,6 +44,12 @@
       button[type='submit'] {
         height: 45px;
       }
+      #todo__all {
+        display: flex;
+        justify-content: justify;
+        align-items: justify;
+        font-family: 'Times New Roman', Times, serif
+      }
       
     </style>
 </head>
@@ -46,16 +57,24 @@
     <div id="app">
       <form @submit.prevent="event => addTodo(event)">
         <input id="todo__text" type="text" placeholder="Add Todo's" v-model="newTodo.text"/>
-        <input type="datetime-local" v-model="newTodo.dateTime"/>
+        <input type="date" v-model="newTodo.date"/>
+        <input type="time" v-model="newTodo.time"/>
         <button type="submit" :disabled="!newTodo.text" id="todo__submit">Add </button>
       </form>
       <hr/>
       <p id="todo__all" v-if="messages.length > 0" v-for="message in messages">
         <span>{{message.id}}.</span>
         <input v-if="message.isEditable" id="todo__edit" type="text" v-model="message.text" />
-        <span v-else>{{ message.text }} {{ message.dateTime }}</span>
+        <input v-if="message.isEditable" id="todo__edit" type="date" v-model="message.date" />
+        <input v-if="message.isEditable" id="todo__edit" type="time" v-model="message.time" />
+        <data v-else>
+          <input type="checkbox" v-model="message.hasDone"/>
+          <span :style="{ textDecoration : message.hasDone ? 'line-through' : ''}">
+            {{ message.date }} {{ message.time }} {{ message.text }}
+          </span>
+        </data>
         
-        <button @click="toggleEdit(message)">{{ message.isEditable ? 'Save' : 'Edit'}}</button>
+        <button @click="toggleEdit(message)" :disabled="message.hasDone">{{ message.isEditable ? 'Save' : 'Edit'}}</button>
         <button @click="deleteTodo(message.id)">Delete</button>
       </p>
       <p v-else>No Todo's found, Please add!</p>
@@ -74,9 +93,9 @@
             const addTodo = () => {
               messages.value.push({
                 id: messages.value.length + 1,
-                text: newTodo.value.text,
-                dateTime: newTodo.value.dateTime,
-                isEditable: false
+                isEditable: false,
+                hasDone: false,
+                ...newTodo.value
               })
               newTodo.value = {}
             }

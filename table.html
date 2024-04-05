@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table::css</title>
+    <style>
+        body {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            width: 70%;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: large;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        tr {
+            height: 50px;
+            padding: auto;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        th, td {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #dddddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        table caption {
+            caption-side: bottom;
+            text-align: left;
+        }
+        .tr__child_content {
+            text-align: left;
+            margin-right: 30px;
+            border-bottom: 1px solid blue;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ message }}</h1>
+
+        <table>
+            <caption>
+                <small>Table Caption</small> 
+            </caption>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" v-for="h in Object.keys(rows[0])">{{ h }}</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="(row, index) in rows">
+                    <tr class="tr__parent">
+                        <th scope="row"> {{index}} </th>
+                        <td v-for="k in Object.keys(row)">{{ row[k] }}</td>
+                        <td>
+                            <button @click="toggleCollapse(index)">{{ collapse[index] ? 'Collapse' : 'Expand'}}</button>
+                        </td>
+                    </tr>
+                    <tr class="tr__child" :style="{display: collapse[index] ? '' : 'none'}">
+                        <td colspan="100%">
+                            <div style="display: flex;">
+                                <div class="tr__child_content" v-for="i in [1,2,3]">Base Index: {{ index }}, Local Index: {{ i }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, watch } = Vue
+      
+        createApp({
+            setup() {
+                const message = ref('Table Layout!')
+                const collapse = ref({})
+                //assum that rows data are coming from server
+                const rows = ref([
+                    { id: 1, data1: 'Date 1', data2: 'Date 2', data3: 'Date 3'},
+                    { id: 2, data1: 'Date 1', data2: 'Date 2', data3: 'Date 3'},
+                    { id: 3, data1: 'Date 1', data2: 'Date 2', data3: 'Date 3'},
+                    { id: 4, data1: 'Date 1', data2: 'Date 2', data3: 'Date 3'},
+                    { id: 5, data1: 'Date 1', data2: 'Date 2', data3: 'Date 3'}
+                ])
+                const toggleCollapse = (index) => {
+                    collapse.value[index] = !collapse.value[index]
+                }
+
+                watch(collapse, () => {
+                    console.log(collapse.value)
+                })
+
+                return {
+                    message, rows, collapse, toggleCollapse
+                }
+            }
+        }).mount('#app')
+      </script>
+</body>
+</html>
